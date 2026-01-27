@@ -1,11 +1,6 @@
 {% extends "reservas/base.html" %}
 
-{% block content %}
-<div class="page-header">
-  <a href="{% url 'reservas:realizar_reserva' %}" class="back-button">← Volver</a>
-  <h2>📅 Calendario de reservas</h2>
-</div>
-
+{% block step_indicator %}
 {% if current_step %}
 <div class="step-indicator">
   <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
@@ -16,6 +11,13 @@
   <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="{% url 'reservas:realizar_reserva' %}" class="back-button">← Volver</a>
+  <h2>📅 Calendario de reservas</h2>
+</div>
 
 <p class="info">
   Cafetería: <strong>{{ cafeteria.nombre }}</strong><br>

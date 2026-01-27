@@ -57,14 +57,14 @@ def calendario_general(request, cafeteria_id):
 
             if tiene_huecos:
                 eventos_calendar.append({
-                    "title": "Disponibilidad Parcial",
+                    #"title": "Disponibilidad Parcial",
                     "start": fecha.isoformat(),
                     "allDay": True,
                     "color": "#3b82f6"  # 🔵 Azul
                 })
             else:
                 eventos_calendar.append({
-                    "title": "Sin Disponibilidad",
+                    #"title": "Sin Disponibilidad",
                     "start": fecha.isoformat(),
                     "allDay": True,
                     "color": "#ef4444"  # 🔴 Rojo
@@ -107,6 +107,13 @@ def calendario_dia(request, cafeteria_id, fecha):
             )
         })
 
+    # Calcular slotMinTime y slotMaxTime basados en horario de cafetería
+    slot_min_time = cafeteria.hora_apertura.strftime('%H:%M:%S')
+    if cafeteria.hora_cierre <= cafeteria.hora_apertura:
+        slot_max_time = '24:00:00'
+    else:
+        slot_max_time = cafeteria.hora_cierre.strftime('%H:%M:%S')
+
     return render(
         request,
         "reservas/calendario_dia.html",
@@ -116,6 +123,8 @@ def calendario_dia(request, cafeteria_id, fecha):
             "eventos": eventos,
             "hora_apertura": cafeteria.hora_apertura,
             "hora_cierre": cafeteria.hora_cierre,
+            "slot_min_time": slot_min_time,
+            "slot_max_time": slot_max_time,
             "current_step": 3
         }
     )

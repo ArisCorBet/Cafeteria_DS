@@ -1,11 +1,6 @@
 {% extends "reservas/base.html" %}
 
-{% block content %}
-<div class="page-header">
-  <a href="{% url 'reservas:calendario_general' cafeteria.id %}" class="back-button">← Volver</a>
-  <h2>📅 {{ cafeteria.nombre }}</h2>
-</div>
-
+{% block step_indicator %}
 {% if current_step %}
 <div class="step-indicator">
   <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
@@ -16,6 +11,13 @@
   <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="{% url 'reservas:calendario_general' cafeteria.id %}" class="back-button">← Volver</a>
+  <h2>📅 {{ cafeteria.nombre }}</h2>
+</div>
 
 <p class="info">
   Fecha seleccionada: <strong>{{ fecha }}</strong><br>
@@ -46,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
     selectOverlap: true,   // 🔴 CLAVE
     eventOverlap: true,    // 🔴 CLAVE
     height: 'auto',
-    slotMinTime: '06:00:00',
-    slotMaxTime: '23:00:00',
+    slotMinTime: '{{ slot_min_time }}',
+    slotMaxTime: '{{ slot_max_time }}',
     events: eventos,
     allDaySlot: false,
     selectable: true,
