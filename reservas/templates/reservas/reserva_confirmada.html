@@ -1,0 +1,57 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+
+<div class="confirmacion-container">
+
+  {% if current_step %}
+  <div class="step-indicator">
+    <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
+    <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
+    <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
+    <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
+    <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
+    <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
+  </div>
+  {% endif %}
+
+  <div class="confirmacion-header">
+    <span class="icono-exito">✅</span>
+    <h2>Reserva confirmada</h2>
+    <p class="mensaje-exito">
+      Tu reserva se ha realizado correctamente.
+    </p>
+  </div>
+
+  <div class="confirmacion-card">
+    <h3>📄 Detalles de la reserva</h3>
+
+    <p>
+      <strong>Código:</strong>
+      <span class="codigo">{{ reserva.codigo }}</span>
+    </p>
+
+    <p>
+      <strong>Fecha:</strong>
+      {{ reserva.plazo_limite }}
+    </p>
+
+    <p>
+       <strong>Fecha:</strong>
+      {{ reserva.plazo_limite|date:"d M Y" }}
+    </p>
+    <p>
+      <strong>Horario:</strong>
+      {{ reserva.hora_inicio|time:"H:i" }} – {{ reserva.hora_fin|time:"H:i" }}
+    </p>
+  </div>
+
+  <div class="acciones-finales">
+    <a href="{% url 'reservas:realizar_reserva' %}" class="btn">
+      ➕ Realizar otra reserva
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

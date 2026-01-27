@@ -1,0 +1,85 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+
+<div class="container-wide">
+<div class="page-header">
+  <a href="{% url 'home_cliente' %}" class="back-button">← Volver</a>
+  <h2>☕ Realizar Reserva</h2>
+</div>
+
+{% if current_step %}
+<div class="step-indicator">
+  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
+  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
+  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
+  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
+  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
+  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
+</div>
+{% endif %}
+
+<p class="info">
+  Selecciona una cafetería para continuar con la reserva de una mesa.
+</p>
+
+{% load tz %}
+{% now "H:i:s" as hora_actual %}
+
+<div class="cafeterias-list">
+  {% for cafeteria in cafeterias %}
+    <div class="cafeteria-card">
+      <h3>{{ cafeteria.nombre }}</h3>
+
+     {% if cafeteria.hora_apertura|time:"H:i:s" <= cafeteria.hora_cierre|time:"H:i:s" %}
+  {# Horario normal #}
+  {% if cafeteria.hora_apertura|time:"H:i:s" <= hora_actual and hora_actual <= cafeteria.hora_cierre|time:"H:i:s" %}
+    <span class="estado abierto">Abierta ahora</span>
+  {% else %}
+    <span class="estado cerrado">Cerrada ahora</span>
+  {% endif %}
+{% else %}
+  {# Horario cruza medianoche #}
+  {% if hora_actual >= cafeteria.hora_apertura|time:"H:i:s" or hora_actual <= cafeteria.hora_cierre|time:"H:i:s" %}
+    <span class="estado abierto">Abierta ahora</span>
+  {% else %}
+    <span class="estado cerrado">Cerrada ahora</span>
+  {% endif %}
+{% endif %}
+
+
+
+
+      <p>
+        📍 <strong>Ubicación:</strong> {{ cafeteria.ubicacion }}
+      </p>
+
+      <p>
+        🕒 <strong>Horario:</strong>
+       {{ cafeteria.hora_apertura|time:"H:i" }} – {{ cafeteria.hora_cierre|time:"H:i" }}
+
+      </p>
+
+      <p>
+        👥 <strong>Capacidad:</strong> {{ cafeteria.capacidad }} personas
+      </p>
+
+      <a class="btn"
+      href="{% url 'reservas:calendario_general' cafeteria.id %}">
+      Reservar en esta cafetería
+      </a>
+
+
+    </div>
+  {% empty %}
+   <div class="empty">
+      ☕ No hay cafeterías disponibles en este momento.
+    </div>
+  {% endfor %}
+</div>
+</div>
+
+
+
+{% endblock %}
+

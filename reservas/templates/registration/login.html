@@ -1,0 +1,56 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+<div class="login-container">
+
+  <div class="login-card">
+
+    <!-- Identidad -->
+    <div class="login-header">
+      <span class="login-icon">🔐</span>
+      <h2>LatteGo</h2>
+      <p class="login-subtitle">
+        Sistema de Reservas de Cafeterías
+      </p>
+    </div>
+
+    <!-- Mensaje informativo -->
+    <div class="info">
+      Inicia sesión para gestionar tus reservas de cafetería.
+    </div>
+
+    <!-- Errores -->
+    {% if form.errors %}
+      <div class="error-box">
+        Usuario o contraseña incorrectos. Intente nuevamente.
+      </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post" class="login-form">
+      {% csrf_token %}
+
+      <p>
+        <label for="id_username">Usuario</label>
+        {{ form.username }}
+      </p>
+
+      <p>
+        <label for="id_password">Contraseña</label>
+        {{ form.password }}
+      </p>
+
+      <button type="submit" class="btn btn-login">
+        Ingresar
+      </button>
+    </form>
+
+    <!-- Footer institucional -->
+    <div class="login-footer">
+      © 2026 · LatteGo
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

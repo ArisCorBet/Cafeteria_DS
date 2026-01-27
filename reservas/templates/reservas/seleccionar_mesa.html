@@ -1,0 +1,49 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <a href="{% url 'reservas:calendario_dia' cafeteria.id fecha %}" class="back-button">← Volver</a>
+  <h2>🪑 Mesas disponibles</h2>
+</div>
+
+{% if current_step %}
+<div class="step-indicator">
+  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
+  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
+  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
+  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
+  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
+  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
+</div>
+{% endif %}
+
+<p class="info">
+  <strong>Cafetería:</strong> {{ cafeteria.nombre }}<br>
+  <strong>Fecha:</strong> {{ fecha }}<br>
+  <strong>Horario:</strong> {{ hora_inicio }} – {{ hora_fin }}
+</p>
+
+<div class="mesas-grid">
+  {% for mesa in mesas %}
+    <div class="mesa-card">
+      <h3>Mesa {{ mesa.codigo }}</h3>
+
+      <p>👥 <strong>Capacidad:</strong> {{ mesa.capacidad }} personas</p>
+      <p>🕒 <strong>Horario:</strong> {{ hora_inicio }} – {{ hora_fin }}</p>
+
+      <span class="estado disponible">Disponible</span>
+
+      <a class="btn"
+         href="{% url 'reservas:confirmar_reserva' mesa.id %}?fecha={{ fecha }}&hora_inicio={{ hora_inicio }}&hora_fin={{ hora_fin }}">
+        Confirmar reserva
+      </a>
+    </div>
+  {% empty %}
+    <div class="empty">
+      ❌ No hay mesas disponibles para este horario
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

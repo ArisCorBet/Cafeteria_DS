@@ -1,0 +1,76 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <a href="{% url 'reservas:calendario_general' cafeteria.id %}" class="back-button">← Volver</a>
+  <h2>📅 {{ cafeteria.nombre }}</h2>
+</div>
+
+{% if current_step %}
+<div class="step-indicator">
+  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
+  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
+  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
+  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
+  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
+  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
+</div>
+{% endif %}
+
+<p class="info">
+  Fecha seleccionada: <strong>{{ fecha }}</strong><br>
+  Selecciona un horario disponible.
+</p>
+
+<div id="calendar"></div>
+
+{{ eventos|json_script:"eventos-dia" }}
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  const eventos = JSON.parse(
+    document.getElementById('eventos-dia').textContent
+  );
+
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'timeGridDay',
+    initialDate: "{{ fecha }}",
+    locale: 'es',
+    selectable: true,
+    selectOverlap: true,   // 🔴 CLAVE
+    eventOverlap: true,    // 🔴 CLAVE
+    height: 'auto',
+    slotMinTime: '06:00:00',
+    slotMaxTime: '23:00:00',
+    events: eventos,
+    allDaySlot: false,
+    selectable: true,
+
+   select: function(info) {
+
+  const fecha = info.start.toISOString().slice(0, 10);
+  const horaInicio = info.start.toTimeString().slice(0, 5);
+  const horaFin = info.end.toTimeString().slice(0, 5);
+
+  if (!confirm(`¿Deseas reservar una mesa de ${horaInicio} a ${horaFin}?`)) {
+    return;
+  }
+  
+  window.location.href =
+    `/reservas/cafeteria/{{ cafeteria.id }}/mesas/?fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}`;
+}
+
+
+
+  });
+
+  calendar.render();
+});
+</script>
+{% endblock %}

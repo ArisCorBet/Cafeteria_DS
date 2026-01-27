@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>LatteGo</title>
+    <link rel="stylesheet" href="{% static 'reservas/styles.css' %}">
+</head>
+<body>
+
+<!-- =========================
+     HEADER SUPERIOR
+     ========================= -->
+<header class="main-header">
+    <div class="header-left">
+        <span class="logo">☕ LatteGo</span>
+    </div>
+
+    <div class="header-right">
+        <span class="usuario">
+            {{ request.user.username }}
+        </span>
+
+        <!-- Acciones futuras (solo visual) -->
+        <a href="#" class="header-link disabled">Mis reservas</a>
+        <a href="#" class="header-link disabled">Perfil</a>
+        <a href="{% url 'logout' %}" class="header-link salir">Cerrar sesión</a>
+    </div>
+</header>
+
+<!-- =========================
+     CONTENIDO PRINCIPAL
+     ========================= -->
+<main class="container">
+    {% block content %}
+    {% endblock %}
+</main>
+
+</body>
+</html>

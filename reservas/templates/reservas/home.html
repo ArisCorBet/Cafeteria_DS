@@ -1,0 +1,69 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+
+
+
+
+<div class="home-container">
+
+    <!-- =========================
+         BIENVENIDA
+         ========================= -->
+    <div class="home-header">
+        <h2>Bienvenido, {{ request.user.username }}</h2>
+        <p class="hint">
+            Desde aquí puedes gestionar tus reservas en las cafeterías disponibles.
+        </p>
+    </div>
+
+    <div class="estado-sistema">
+  <p>☕ Cafeterías disponibles para reserva</p>
+  <p>📅 Reservas activas hoy: <em>consulta el calendario</em></p>
+</div>
+
+
+    <div class="info">
+  Hoy es <strong>{% now "d F Y" %}</strong>.  
+  Desde aquí puedes realizar nuevas reservas en las cafeterías disponibles.
+</div>
+
+    <!-- =========================
+         OPCIONES PRINCIPALES
+         ========================= -->
+    <div class="home-opciones">
+
+        <!-- OPCIÓN PRINCIPAL -->
+        <div class="opcion-card activa opcion-principal">
+            <h3>☕ Realizar reserva</h3>
+            <p>
+                Consulta las cafeterías disponibles, revisa horarios y reserva una mesa.
+            </p>
+
+            <a href="{% url 'reservas:realizar_reserva' %}" class="btn">
+                Ir a reservas
+            </a>
+        </div>
+
+        <!-- OPCIONES FUTURAS -->
+        <div class="opcion-card deshabilitada">
+            <h3>📋 Mis reservas</h3>
+            <p>
+                Visualiza y gestiona tus reservas activas.
+            </p>
+            <span class="nota">Disponible próximamente</span>
+        </div>
+
+        <div class="opcion-card deshabilitada">
+            <h3>⚙️ Configuración</h3>
+            <p>
+                Administra tu información de cuenta.
+            </p>
+            <span class="nota">Disponible próximamente</span>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

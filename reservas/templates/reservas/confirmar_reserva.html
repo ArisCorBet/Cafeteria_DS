@@ -1,0 +1,21 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+<h2>Confirmar Reserva</h2>
+
+<p><strong>Mesa:</strong> {{ mesa.codigo }}</p>
+<p><strong>Fecha:</strong> {{ fecha }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <label>Hora inicio:</label><br>
+  <input type="time" name="hora_inicio" required><br>
+
+  <label>Hora fin:</label><br>
+  <input type="time" name="hora_fin" required><br><br>
+
+  <button type="submit" class="confirm-btn">
+    Confirmar Reserva
+  </button>
+</form>
+{% endblock %}

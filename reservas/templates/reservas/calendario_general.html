@@ -1,0 +1,76 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <a href="{% url 'reservas:realizar_reserva' %}" class="back-button">← Volver</a>
+  <h2>📅 Calendario de reservas</h2>
+</div>
+
+{% if current_step %}
+<div class="step-indicator">
+  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
+  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
+  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
+  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
+  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
+  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
+</div>
+{% endif %}
+
+<p class="info">
+  Cafetería: <strong>{{ cafeteria.nombre }}</strong><br>
+  Selecciona un día para ver los horarios disponibles.
+</p>
+
+<div class="calendar-legend">
+  <span class="legend-item">
+    <span style="color: #3b82f6;">■</span> Disponibilidad Parcial
+  </span>
+
+  <span class="legend-item">
+    <span style="color: #ef4444;">■</span> Sin Disponibilidad
+  </span>
+
+  <span class="legend-item ayuda">
+    🖱️ Haz clic en un día para ver horarios
+  </span>
+</div>
+
+
+
+
+<div id="calendar"></div>
+
+{# ---- JSON seguro desde Django ---- #}
+{{ eventos|json_script:"eventos-data" }}
+
+<!-- FullCalendar -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Leer eventos desde el script JSON seguro
+  const eventos = JSON.parse(
+    document.getElementById('eventos-data').textContent
+  );
+
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'es',
+    height: 'auto',
+    events: eventos,
+
+    dateClick: function(info) {
+      window.location.href =
+        `/reservas/cafeteria/{{ cafeteria.id }}/calendario/${info.dateStr}/`;
+    }
+  });
+
+  calendar.render();
+});
+</script>
+{% endblock %}
