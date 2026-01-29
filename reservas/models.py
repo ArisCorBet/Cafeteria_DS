@@ -1,11 +1,12 @@
 from django.db import models
 from cafeterias.models import Mesa, EstadoMesa
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 class Reserva(models.Model):
     codigo = models.CharField(max_length=20)
-    fecha_creacion = models.DateField(auto_now_add=True, null=True)
+    fecha_creacion = models.DateField(default=timezone.now, null=True, blank=True)
     fecha_reserva = models.DateField()
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()

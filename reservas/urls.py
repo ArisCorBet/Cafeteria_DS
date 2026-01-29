@@ -40,4 +40,6 @@ urlpatterns = [
         views.eventos_mesa,
         name='eventos_mesa'
     ),
+    path('mis-reservas/', views.mis_reservas, name='mis_reservas'),
+    path('configuracion/', views.configuracion_perfil, name='configuracion'),
 ]

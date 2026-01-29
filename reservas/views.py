@@ -10,6 +10,8 @@ from django.shortcuts import redirect
 from datetime import time, timedelta, datetime, date
 from calendar import monthrange
 from pytz import timezone as pytz_timezone
+from pytz import timezone as pytz_timezone
+from .forms import RegistroForm  
 
 @login_required
 def realizar_reserva(request):
@@ -198,13 +200,14 @@ def confirmar_reserva(request, mesa_id):
     hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
     hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
 
-    # Calcular plazo límite: un día antes de la fecha seleccionada
+    # Calcular plazo límite
     from datetime import timedelta
     plazo_limite = fecha - timedelta(days=1)
 
     reserva = Reserva.objects.create(
         codigo=f"RES-{int(timezone.now().timestamp())}",
-        fecha_reserva=timezone.now().date(),
+        # ERROR ESTABA AQUÍ: Cambia timezone.now().date() por fecha
+        fecha_reserva=fecha, 
         hora_inicio=hora_inicio,
         hora_fin=hora_fin,
         plazo_limite=plazo_limite,
@@ -256,8 +259,13 @@ def eventos_mesa(request, mesa_id):
 
     return JsonResponse(eventos, safe=False)
 
+@login_required
 def home_cliente(request):
-    return render(request, "reservas/home.html")
+    # Esto envía los datos del usuario logueado al HTML
+    context = {
+        'usuario': request.user,
+    }
+    return render(request, "reservas/home.html", context)
 
 @login_required
 def redireccion_post_login(request):
@@ -302,3 +310,36 @@ def dia_tiene_huecos(fecha, mesas, hora_apertura, hora_cierre):
 
     # Ningún bloque tuvo mesas libres
     return False
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # "messages" ya está importado en tu archivo, así que funcionará bien
+            messages.success(request, "Cuenta creada exitosamente. ¡Ahora puedes iniciar sesión!")
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    return render(request, 'registration/registro.html', {'form': form})
+
+@login_required
+def mis_reservas(request):
+    # Esto filtra las reservas del usuario que tiene la sesión iniciada
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-id')
+    return render(request, "reservas/mis_reservas.html", {"reservas": reservas})
+
+@login_required
+def cancelar_reserva(request, reserva_id):
+    # Buscamos la reserva y verificamos que sea del usuario actual por seguridad
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    reserva.delete()
+    messages.success(request, "¡Tu reserva ha sido cancelada exitosamente!")
+    return redirect('mis_reservas')
+
+@login_required
+def configuracion_perfil(request):
+    # Por ahora solo mostramos los datos del usuario logueado
+    return render(request, "reservas/perfil.html", {
+        "user": request.user
+    })

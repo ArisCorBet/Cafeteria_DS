@@ -1,0 +1,128 @@
+{% extends "reservas/base.html" %}
+
+{% block content %}
+<style>
+    .registro-container {
+        max-width: 500px; /* Más angosto para que parezca un formulario de login/registro */
+        margin: 50px auto;
+        padding: 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .registro-card {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+    }
+
+    .registro-card h2 {
+        margin-top: 0;
+        color: #1f2937;
+        font-size: 24px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    /* Estilo para las etiquetas y campos */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #4b5563;
+        font-size: 14px;
+    }
+
+    /* Estilizamos los inputs que genera Django automáticamente */
+    .registro-card input[type="text"],
+    .registro-card input[type="password"],
+    .registro-card input[type="email"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        box-sizing: border-box; /* Importante para que no se salgan del cuadro */
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    .registro-card input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .helptext {
+        display: block;
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 5px;
+    }
+
+    /* BOTÓN OSCURO IGUAL AL HOME */
+    .btn-registro {
+        width: 100%;
+        padding: 14px;
+        background-color: #1f2937;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.3s;
+    }
+
+    .btn-registro:hover {
+        background-color: #374151;
+    }
+
+    .footer-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .footer-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+
+<div class="registro-container">
+    <div class="registro-card">
+        <h2>Registrarse en LatteGo</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="helptext">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p style="color: #dc2626; font-size: 12px; margin: 5px 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-registro">Crear Cuenta</button>
+        </form>
+
+        <div class="footer-link">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
