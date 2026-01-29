@@ -1,22 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
 from django.http import JsonResponse
 from cafeterias.models import Cafeteria, Mesa
 from .models import Reserva, MesaReserva, EstadoMesa
 from django.shortcuts import redirect
-from datetime import time, timedelta, datetime, date
+from datetime import timedelta, datetime, date
 from calendar import monthrange
-from pytz import timezone as pytz_timezone
 
 @login_required
 def realizar_reserva(request):
-    cafeterias = Cafeteria.objects.all()
-    # Obtener hora actual en Ecuador
-    tz_ecuador = pytz_timezone('America/Guayaquil')
-    hora_actual = datetime.now(tz_ecuador).time()
+    cafeterias = Cafeteria.objects.all() #Obtener todas las cafeterías
+    # Obtener hora actual según la zona horaria configurada en settings.py
+    hora_actual = timezone.localtime().time()
     cafeterias_estado = []
     for c in cafeterias:
         cafeterias_estado.append({
@@ -29,56 +26,68 @@ def realizar_reserva(request):
         {"cafeterias_estado": cafeterias_estado, "current_step": 1, "hora_actual": hora_actual}
     )
 
+
 @login_required
 def calendario_general(request, cafeteria_id):
     cafeteria = get_object_or_404(Cafeteria, id=cafeteria_id)
 
     mesas = Mesa.objects.filter(cafeteria=cafeteria)
 
-    # 📅 Evaluar TODO el mes actual (no solo días con reservas)
     hoy = date.today()
     anio = hoy.year
     mes = hoy.month
 
     _, dias_mes = monthrange(anio, mes)
+    fechas_mes = [date(anio, mes, dia) for dia in range(1, dias_mes + 1)]
 
-    fechas_mes = [
-        date(anio, mes, dia)
-        for dia in range(1, dias_mes + 1)
-    ]
+    # Obtener todas las reservas ocupadas del mes en una sola consulta
+    reservas_mes = MesaReserva.objects.filter(
+        mesa__in=mesas,
+        fecha__month=mes,
+        fecha__year=anio,
+        estado=EstadoMesa.OCUPADO
+    ).select_related('mesa')
+
+    # Agrupar reservas por fecha
+    reservas_por_fecha = {}
+    for r in reservas_mes:
+        reservas_por_fecha.setdefault(r.fecha, []).append(r)
 
     eventos_calendar = []
-
     for fecha in fechas_mes:
-        # Verificar si hay reservas ocupadas en esta fecha para las mesas
-        hay_reservas = MesaReserva.objects.filter(
-            mesa__in=mesas,
-            fecha=fecha,
-            estado=EstadoMesa.OCUPADO
-        ).exists()
-
-        if hay_reservas:
-            tiene_huecos = dia_tiene_huecos(
-                fecha=fecha,
-                mesas=mesas,
-                hora_apertura=cafeteria.hora_apertura,
-                hora_cierre=cafeteria.hora_cierre
-            )
-
-            if tiene_huecos:
+        reservas_dia = reservas_por_fecha.get(fecha, [])
+        if reservas_dia:
+            # Procesar en memoria para saber si hay huecos
+            # Crear un set de mesas ocupadas en ese día
+            mesas_ocupadas = set(r.mesa_id for r in reservas_dia)
+            if len(mesas_ocupadas) < mesas.count():
+                # Hay al menos una mesa libre en algún bloque
                 eventos_calendar.append({
-                    #"title": "Disponibilidad Parcial",
                     "start": fecha.isoformat(),
                     "allDay": True,
-                    "color": "#3b82f6"  # 🔵 Azul
+                    "color": "#3b82f6"  
                 })
             else:
-                eventos_calendar.append({
-                    #"title": "Sin Disponibilidad",
-                    "start": fecha.isoformat(),
-                    "allDay": True,
-                    "color": "#ef4444"  # 🔴 Rojo
-                })
+                # Todas las mesas ocupadas en algún momento, pero puede haber huecos
+                # Usar la función original para precisión
+                tiene_huecos = dia_tiene_huecos(
+                    fecha=fecha,
+                    mesas=mesas,
+                    hora_apertura=cafeteria.hora_apertura,
+                    hora_cierre=cafeteria.hora_cierre
+                )
+                if tiene_huecos:
+                    eventos_calendar.append({
+                        "start": fecha.isoformat(),
+                        "allDay": True,
+                        "color": "#3b82f6"  # 🔵 Azul
+                    })
+                else:
+                    eventos_calendar.append({
+                        "start": fecha.isoformat(),
+                        "allDay": True,
+                        "color": "#e66e6e"  
+                    })
 
     context = {
         "cafeteria": cafeteria,
@@ -106,14 +115,18 @@ def calendario_dia(request, cafeteria_id, fecha):
 
     eventos = []
     for r in reservas:
+        if r.estado == EstadoMesa.OCUPADO:
+            title = "Reservada"
+        else:
+            title = r.get_estado_display()
         eventos.append({
-            "title": f"Mesa {r.mesa.codigo}",
+            "title": title,
             "start": f"{fecha}T{r.hora_inicio.strftime('%H:%M:%S')}",
             "end": f"{fecha}T{r.hora_fin.strftime('%H:%M:%S')}",
             "color": (
-                "#e57373"
+                "#dc6b6b"
                 if r.estado == EstadoMesa.OCUPADO
-                else "#fff176"
+                else "#e0d254"
             )
         })
 
@@ -144,7 +157,7 @@ def calendario_dia(request, cafeteria_id, fecha):
 def seleccionar_mesa(request, cafeteria_id):
     cafeteria = get_object_or_404(Cafeteria, id=cafeteria_id)
 
-    # 🔹 Parámetros enviados desde el calendario diario
+    # Parámetros enviados desde el calendario diario
     fecha_str = request.GET.get("fecha")
     hora_inicio_str = request.GET.get("hora_inicio")
     hora_fin_str = request.GET.get("hora_fin")
@@ -190,47 +203,63 @@ def seleccionar_mesa(request, cafeteria_id):
 def confirmar_reserva(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)
 
-    fecha_str = request.GET.get("fecha")
-    hora_inicio_str = request.GET.get("hora_inicio")
-    hora_fin_str = request.GET.get("hora_fin")
+    if request.method == "POST":
+        fecha_str = request.GET.get("fecha")
+        hora_inicio_str = request.GET.get("hora_inicio")
+        hora_fin_str = request.GET.get("hora_fin")
 
-    fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
-    hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
-    hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
+        hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
 
-    # Calcular plazo límite: un día antes de la fecha seleccionada
-    from datetime import timedelta
-    plazo_limite = fecha - timedelta(days=1)
+        from datetime import timedelta
+        plazo_limite = fecha - timedelta(days=1)
 
-    reserva = Reserva.objects.create(
-        codigo=f"RES-{int(timezone.now().timestamp())}",
-        fecha_reserva=timezone.now().date(),
-        hora_inicio=hora_inicio,
-        hora_fin=hora_fin,
-        plazo_limite=plazo_limite,
-        num_personas=mesa.capacidad,
-        usuario=request.user
-    )
+        reserva = Reserva.objects.create(
+            codigo=f"RES-{int(timezone.now().timestamp())}",
+            fecha_reserva=timezone.now().date(),
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
+            plazo_limite=plazo_limite,
+            num_personas=mesa.capacidad,
+            usuario=request.user
+        )
 
-    MesaReserva.objects.create(
-        mesa=mesa,
-        reserva=reserva,
-        fecha=fecha,
-        hora_inicio=hora_inicio,
-        hora_fin=hora_fin,
-        estado=EstadoMesa.OCUPADO
-    )
+        MesaReserva.objects.create(
+            mesa=mesa,
+            reserva=reserva,
+            fecha=fecha,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
+            estado=EstadoMesa.OCUPADO
+        )
 
-    return render(
-        request,
-        "reservas/reserva_confirmada.html",
-        {
-            "reserva": reserva,
-            "fecha_seleccionada": fecha,
-            "mesa": mesa,
-            "current_step": 6
-        }
-    )
+        return render(
+            request,
+            "reservas/reserva_confirmada.html",
+            {
+                "reserva": reserva,
+                "fecha_seleccionada": fecha,
+                "mesa": mesa,
+                "current_step": 6
+            }
+        )
+    else:
+        fecha_str = request.GET.get("fecha")
+        hora_inicio_str = request.GET.get("hora_inicio")
+        hora_fin_str = request.GET.get("hora_fin")
+
+        return render(
+            request,
+            "reservas/confirmar_reserva.html",
+            {
+                "mesa": mesa,
+                "fecha": fecha_str,
+                "hora_inicio": hora_inicio_str,
+                "hora_fin": hora_fin_str,
+                "current_step": 5
+            }
+        )
 
 def eventos_mesa(request, mesa_id):
     fecha_str = request.GET.get("fecha")

@@ -1,3 +1,28 @@
+<script>
+  // Función para obtener el ancho de la scrollbar
+  function getScrollbarWidth() {
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.overflow = 'scroll';
+    outer.style.msOverflowStyle = 'scrollbar';
+    document.body.appendChild(outer);
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+    outer.parentNode.removeChild(outer);
+    return scrollbarWidth;
+  }
+
+  function openModalCompensateScroll() {
+    const scrollBarWidth = getScrollbarWidth();
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = scrollBarWidth + 'px';
+  }
+  function closeModalRestoreScroll() {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+</script>
 {% extends "reservas/base.html" %}
 
 {% block step_indicator %}
@@ -26,19 +51,22 @@
   <strong>Horario:</strong> {{ hora_inicio }} – {{ hora_fin }}
 </p>
 
+
 <div class="mesas-grid">
   {% for mesa in mesas %}
     <div class="mesa-card">
       <h3>Mesa {{ mesa.codigo }}</h3>
-
       <p>👥 <strong>Capacidad:</strong> {{ mesa.capacidad }} personas</p>
-
       <span class="badge badge-disponible">✓ Disponible</span>
-
-      <a class="btn"
-         href="{% url 'reservas:confirmar_reserva' mesa.id %}?fecha={{ fecha }}&hora_inicio={{ hora_inicio }}&hora_fin={{ hora_fin }}">
+      <button class="btn btn-confirmar-mesa"
+         data-mesa-id="{{ mesa.id }}"
+         data-mesa-codigo="{{ mesa.codigo }}"
+         data-mesa-capacidad="{{ mesa.capacidad }}"
+         data-fecha="{{ fecha }}"
+         data-hora-inicio="{{ hora_inicio }}"
+         data-hora-fin="{{ hora_fin }}">
         Confirmar reserva
-      </a>
+      </button>
     </div>
   {% empty %}
     <div class="empty">
@@ -46,5 +74,62 @@
     </div>
   {% endfor %}
 </div>
+
+<!-- Modal de confirmación (solo uno en el DOM) -->
+<div id="modal-confirmar" class="modal-reserva" style="display:none;">
+  <div class="modal-contenido">
+    <h2>Confirmar Reserva</h2>
+    <p><strong>Mesa:</strong> <span id="modal-mesa-codigo"></span></p>
+    <p><strong>Capacidad:</strong> <span id="modal-mesa-capacidad"></span> personas</p>
+    <p><strong>Fecha:</strong> <span id="modal-fecha"></span></p>
+    <p><strong>Horario:</strong> <span id="modal-hora-inicio"></span> - <span id="modal-hora-fin"></span></p>
+    <form id="form-confirmar" method="post" autocomplete="off" style="margin-top:18px;">
+      {% csrf_token %}
+      <input type="hidden" name="mesa_id" id="input-mesa-id">
+      <input type="hidden" name="fecha" id="input-fecha">
+      <input type="hidden" name="hora_inicio" id="input-hora-inicio">
+      <input type="hidden" name="hora_fin" id="input-hora-fin">
+      <button type="submit" class="btn btn-aceptar">Aceptar</button>
+      <button type="button" class="btn btn-cancelar" id="cerrar-modal">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Abrir modal y rellenar datos
+    document.querySelectorAll('.btn-confirmar-mesa').forEach(function(btn) {
+      btn.onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-mesa-codigo').textContent = btn.getAttribute('data-mesa-codigo');
+        document.getElementById('modal-mesa-capacidad').textContent = btn.getAttribute('data-mesa-capacidad');
+        document.getElementById('modal-fecha').textContent = btn.getAttribute('data-fecha');
+        document.getElementById('modal-hora-inicio').textContent = btn.getAttribute('data-hora-inicio');
+        document.getElementById('modal-hora-fin').textContent = btn.getAttribute('data-hora-fin');
+        document.getElementById('input-mesa-id').value = btn.getAttribute('data-mesa-id');
+        document.getElementById('input-fecha').value = btn.getAttribute('data-fecha');
+        document.getElementById('input-hora-inicio').value = btn.getAttribute('data-hora-inicio');
+        document.getElementById('input-hora-fin').value = btn.getAttribute('data-hora-fin');
+        document.getElementById('modal-confirmar').style.display = 'flex';
+        openModalCompensateScroll();
+      };
+    });
+    // Cerrar modal
+    document.getElementById('cerrar-modal').onclick = function() {
+      document.getElementById('modal-confirmar').style.display = 'none';
+      closeModalRestoreScroll();
+    };
+    // Enviar formulario al backend
+    document.getElementById('form-confirmar').onsubmit = function(e) {
+      // Cambia la acción del formulario para enviar a la vista de confirmar_reserva
+      var mesaId = document.getElementById('input-mesa-id').value;
+      var fecha = document.getElementById('input-fecha').value;
+      var horaInicio = document.getElementById('input-hora-inicio').value;
+      var horaFin = document.getElementById('input-hora-fin').value;
+      this.action = `/reservas/confirmar/${mesaId}/?fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}`;
+      closeModalRestoreScroll();
+    };
+  });
+</script>
 
 {% endblock %}

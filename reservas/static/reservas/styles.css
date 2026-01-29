@@ -1,3 +1,113 @@
+html {
+    overflow-y: scroll;
+}
+/* Modal para confirmar reserva en seleccionar mesa */
+.modal-reserva {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    background: rgba(0,0,0,0.35);
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    position: fixed;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+.modal-reserva[style*="display: flex"] {
+    display: flex !important;
+}
+.modal-contenido {
+    background: #fff;
+    padding: 32px 28px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 320px;
+    max-width: 95vw;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1100;
+}
+.btn-aceptar {
+    background: #2563eb;
+    color: #fff;
+    margin-right: 12px;
+}
+.btn-cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+/* Modal para confirmar reserva */
+.modal-reserva {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+        /* Evita que el body con padding afecte el modal */
+        box-sizing: border-box;
+    /* Asegura que el body no tenga padding cuando el modal está abierto */
+    body[style*="overflow: hidden"] {
+        padding-right: 0 !important;
+    }
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    justify-content: center;
+    align-items: center;
+}
+.modal-reserva[style*="display: flex"] {
+    display: flex !important;
+}
+.modal-contenido {
+    background: #fff;
+    padding: 32px 28px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 320px;
+    max-width: 95vw;
+    text-align: center;
+}
+.btn-aceptar {
+    background: #2563eb;
+    color: #fff;
+    margin-right: 12px;
+}
+.btn-cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+/* Limita el ancho de los eventos y los alinea a la izquierda en el calendario de reservas */
+.fc-timegrid-event {
+    max-width: 48% !important;
+    min-width: 0px !important;
+    margin-left: 0 !important;
+    margin-right: 2px !important;
+}
+
+/* Reduce el espacio entre eventos superpuestos para que estén casi juntos */
+.fc-timegrid-event-harness {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    gap: 2px !important;
+}
 
 /* =========================
    VARIABLES DE DISEÑO

@@ -1,21 +1,35 @@
 {% extends 'reservas/base.html' %}
 
 {% block content %}
-<h2>Confirmar Reserva</h2>
 
-<p><strong>Mesa:</strong> {{ mesa.codigo }}</p>
-<p><strong>Fecha:</strong> {{ fecha }}</p>
 
-<form method="post">
-  {% csrf_token %}
-  <label>Hora inicio:</label><br>
-  <input type="time" name="hora_inicio" required><br>
+<button type="button" id="abrir-modal" class="btn">Confirmar Reserva</button>
 
-  <label>Hora fin:</label><br>
-  <input type="time" name="hora_fin" required><br><br>
+<div id="modal-confirmar" class="modal-reserva" style="display:none;">
+  <div class="modal-contenido">
+    <h2>Confirmar Reserva</h2>
+    <p><strong>Mesa:</strong> {{ mesa.codigo }}</p>
+    <p><strong>Capacidad:</strong> {{ mesa.capacidad }} personas</p>
+    <p><strong>Fecha:</strong> {{ fecha }}</p>
+    <p><strong>Horario:</strong> {{ hora_inicio }} - {{ hora_fin }}</p>
+    <form id="form-confirmar" method="post" autocomplete="off" style="margin-top:18px;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-aceptar">Aceptar</button>
+      <button type="button" class="btn btn-cancelar" id="cerrar-modal">Cancelar</button>
+    </form>
+  </div>
+</div>
 
-  <button type="submit" class="confirm-btn">
-    Confirmar Reserva
-  </button>
-</form>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('abrir-modal').onclick = function(e) {
+      e.preventDefault();
+      document.getElementById('modal-confirmar').style.display = 'flex';
+    };
+    document.getElementById('cerrar-modal').onclick = function() {
+      document.getElementById('modal-confirmar').style.display = 'none';
+    };
+  });
+</script>
+
 {% endblock %}
