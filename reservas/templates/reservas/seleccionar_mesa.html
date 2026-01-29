@@ -32,9 +32,8 @@
       <h3>Mesa {{ mesa.codigo }}</h3>
 
       <p>👥 <strong>Capacidad:</strong> {{ mesa.capacidad }} personas</p>
-      <p>🕒 <strong>Horario:</strong> {{ hora_inicio }} – {{ hora_fin }}</p>
 
-      <span class="estado disponible">Disponible</span>
+      <span class="badge badge-disponible">✓ Disponible</span>
 
       <a class="btn"
          href="{% url 'reservas:confirmar_reserva' mesa.id %}?fecha={{ fecha }}&hora_inicio={{ hora_inicio }}&hora_fin={{ hora_fin }}">

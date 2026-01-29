@@ -22,7 +22,13 @@ class Cafeteria(models.Model):
 
     def __str__(self):
         return self.nombre
-    
+
+    def esta_abierta(self, hora_actual):
+        # Horario normal
+        if self.hora_apertura <= self.hora_cierre:
+            return self.hora_apertura <= hora_actual <= self.hora_cierre
+        # Horario que cruza medianoche
+        return hora_actual >= self.hora_apertura or hora_actual <= self.hora_cierre
 
 class Menu(models.Model):
     archivo = models.FileField(upload_to='menus/')

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Reserva(models.Model):
     codigo = models.CharField(max_length=20)
+    fecha_creacion = models.DateField(auto_now_add=True, null=True)
     fecha_reserva = models.DateField()
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()

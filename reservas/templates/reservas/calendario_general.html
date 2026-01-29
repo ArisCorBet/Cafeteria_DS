@@ -60,12 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var calendarEl = document.getElementById('calendar');
 
+
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'es',
     height: 'auto',
     events: eventos,
-
+    validRange: {
+      start: new Date().toISOString().slice(0, 10)
+    },
     dateClick: function(info) {
       window.location.href =
         `/reservas/cafeteria/{{ cafeteria.id }}/calendario/${info.dateStr}/`;

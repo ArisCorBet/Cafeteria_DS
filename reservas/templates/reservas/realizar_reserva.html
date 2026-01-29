@@ -29,49 +29,31 @@
 {% now "H:i:s" as hora_actual %}
 
 <div class="cafeterias-list">
-  {% for cafeteria in cafeterias %}
+  {% for item in cafeterias_estado %}
     <div class="cafeteria-card">
-      <h3>{{ cafeteria.nombre }}</h3>
-
-     {% if cafeteria.hora_apertura|time:"H:i:s" <= cafeteria.hora_cierre|time:"H:i:s" %}
-  {# Horario normal #}
-  {% if cafeteria.hora_apertura|time:"H:i:s" <= hora_actual and hora_actual <= cafeteria.hora_cierre|time:"H:i:s" %}
-    <span class="estado abierto">Abierta ahora</span>
-  {% else %}
-    <span class="estado cerrado">Cerrada ahora</span>
-  {% endif %}
-{% else %}
-  {# Horario cruza medianoche #}
-  {% if hora_actual >= cafeteria.hora_apertura|time:"H:i:s" or hora_actual <= cafeteria.hora_cierre|time:"H:i:s" %}
-    <span class="estado abierto">Abierta ahora</span>
-  {% else %}
-    <span class="estado cerrado">Cerrada ahora</span>
-  {% endif %}
-{% endif %}
-
-
-
-
+      <h3>{{ item.cafeteria.nombre }}</h3>
+      {% if item.abierta %}
+        <span class="estado abierto">Abierta ahora</span>
+      {% else %}
+        <span class="estado cerrado">Cerrada ahora</span>
+      {% endif %}
       <p>
-        📍 <strong>Ubicación:</strong> {{ cafeteria.ubicacion }}
+        🏢 <strong>Bloque:</strong> {{ item.cafeteria.bloque.numero_bloque }} - {{ item.cafeteria.bloque.facultad.nombre }}
       </p>
-
+      <p>
+        📍 <strong>Ubicación:</strong> {{ item.cafeteria.ubicacion }}
+      </p>
       <p>
         🕒 <strong>Horario:</strong>
-       {{ cafeteria.hora_apertura|time:"H:i" }} – {{ cafeteria.hora_cierre|time:"H:i" }}
-
+        {{ item.cafeteria.hora_apertura|time:"H:i" }} – {{ item.cafeteria.hora_cierre|time:"H:i" }}
       </p>
-
       <p>
-        👥 <strong>Capacidad:</strong> {{ cafeteria.capacidad }} personas
+        👥 <strong>Capacidad:</strong> {{ item.cafeteria.capacidad }} personas
       </p>
-
       <a class="btn"
-      href="{% url 'reservas:calendario_general' cafeteria.id %}">
+      href="{% url 'reservas:calendario_general' item.cafeteria.id %}">
       Reservar en esta cafetería
       </a>
-
-
     </div>
   {% empty %}
    <div class="empty">

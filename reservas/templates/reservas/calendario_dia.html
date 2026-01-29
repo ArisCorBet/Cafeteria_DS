@@ -19,10 +19,18 @@
   <h2>📅 {{ cafeteria.nombre }}</h2>
 </div>
 
-<p class="info">
-  Fecha seleccionada: <strong>{{ fecha }}</strong><br>
-  Selecciona un horario disponible.
-</p>
+<div class="calendar-context">
+  <p class="calendar-instruction">
+    Selecciona un rango de tiempo disponible.
+  </p>
+
+  <ul class="calendar-hint">
+    <li>Cada bloque representa <strong>30 minutos</strong></li>
+    <li>Haz clic y <strong>arrastra</strong> para seleccionar más tiempo</li>
+    <li>Suelta el mouse para continuar</li>
+  </ul>
+</div>
+
 
 <div id="calendar"></div>
 
@@ -45,31 +53,30 @@ document.addEventListener('DOMContentLoaded', function() {
     initialDate: "{{ fecha }}",
     locale: 'es',
     selectable: true,
-    selectOverlap: true,   // 🔴 CLAVE
-    eventOverlap: true,    // 🔴 CLAVE
+    selectOverlap: true,   
+    eventOverlap: true,   
     height: 'auto',
     slotMinTime: '{{ slot_min_time }}',
     slotMaxTime: '{{ slot_max_time }}',
     events: eventos,
     allDaySlot: false,
     selectable: true,
+    validRange: {
+      start: new Date().toISOString().slice(0, 10)
+    },
+    select: function(info) {
 
-   select: function(info) {
+      const fecha = info.start.toISOString().slice(0, 10);
+      const horaInicio = info.start.toTimeString().slice(0, 5);
+      const horaFin = info.end.toTimeString().slice(0, 5);
 
-  const fecha = info.start.toISOString().slice(0, 10);
-  const horaInicio = info.start.toTimeString().slice(0, 5);
-  const horaFin = info.end.toTimeString().slice(0, 5);
-
-  if (!confirm(`¿Deseas reservar una mesa de ${horaInicio} a ${horaFin}?`)) {
-    return;
-  }
-  
-  window.location.href =
-    `/reservas/cafeteria/{{ cafeteria.id }}/mesas/?fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}`;
-}
-
-
-
+      if (!confirm(`¿Deseas reservar una mesa de ${horaInicio} a ${horaFin}?`)) {
+        return;
+      }
+      
+      window.location.href =
+        `/reservas/cafeteria/{{ cafeteria.id }}/mesas/?fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}`;
+    }
   });
 
   calendar.render();

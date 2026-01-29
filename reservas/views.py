@@ -9,14 +9,24 @@ from .models import Reserva, MesaReserva, EstadoMesa
 from django.shortcuts import redirect
 from datetime import time, timedelta, datetime, date
 from calendar import monthrange
+from pytz import timezone as pytz_timezone
 
 @login_required
 def realizar_reserva(request):
     cafeterias = Cafeteria.objects.all()
+    # Obtener hora actual en Ecuador
+    tz_ecuador = pytz_timezone('America/Guayaquil')
+    hora_actual = datetime.now(tz_ecuador).time()
+    cafeterias_estado = []
+    for c in cafeterias:
+        cafeterias_estado.append({
+            'cafeteria': c,
+            'abierta': c.esta_abierta(hora_actual)
+        })
     return render(
         request,
         "reservas/realizar_reserva.html",
-        {"cafeterias": cafeterias, "current_step": 1}
+        {"cafeterias_estado": cafeterias_estado, "current_step": 1, "hora_actual": hora_actual}
     )
 
 @login_required
@@ -146,11 +156,11 @@ def seleccionar_mesa(request, cafeteria_id):
 
     mesas = Mesa.objects.filter(cafeteria=cafeteria)
 
-    # 🔹 Si NO viene un rango horario válido → mostrar todas las mesas
+    # Si NO viene un rango horario válido → mostrar todas las mesas
     if not (fecha and hora_inicio and hora_fin):
         mesas_disponibles = mesas
     else:
-        # 🔥 Filtrar mesas ocupadas SOLO en ese rango horario
+        #Filtrar mesas ocupadas SOLO en ese rango horario
         mesas_ocupadas = MesaReserva.objects.filter(
             mesa__cafeteria=cafeteria,
             fecha=fecha,
@@ -188,12 +198,16 @@ def confirmar_reserva(request, mesa_id):
     hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
     hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
 
+    # Calcular plazo límite: un día antes de la fecha seleccionada
+    from datetime import timedelta
+    plazo_limite = fecha - timedelta(days=1)
+
     reserva = Reserva.objects.create(
         codigo=f"RES-{int(timezone.now().timestamp())}",
         fecha_reserva=timezone.now().date(),
         hora_inicio=hora_inicio,
         hora_fin=hora_fin,
-        plazo_limite=fecha,
+        plazo_limite=plazo_limite,
         num_personas=mesa.capacidad,
         usuario=request.user
     )
@@ -210,7 +224,12 @@ def confirmar_reserva(request, mesa_id):
     return render(
         request,
         "reservas/reserva_confirmada.html",
-        {"reserva": reserva, "current_step": 6}
+        {
+            "reserva": reserva,
+            "fecha_seleccionada": fecha,
+            "mesa": mesa,
+            "current_step": 6
+        }
     )
 
 def eventos_mesa(request, mesa_id):
@@ -253,10 +272,9 @@ def redireccion_post_login(request):
 def dia_tiene_huecos(fecha, mesas, hora_apertura, hora_cierre):
     intervalo = timedelta(minutes=30)
 
-    # ⏰ Convertir TODO a datetime
     inicio_dia = datetime.combine(fecha, hora_apertura)
 
-    # 🔥 Caso: horario cruza medianoche
+    # Caso: horario cruza medianoche
     if hora_cierre <= hora_apertura:
         fin_dia = datetime.combine(fecha + timedelta(days=1), hora_cierre)
     else:
@@ -276,11 +294,11 @@ def dia_tiene_huecos(fecha, mesas, hora_apertura, hora_cierre):
             hora_fin__gt=bloque_inicio
         ).values_list("mesa_id", flat=True)
 
-        # 🟢 Si existe al menos una mesa libre → hay hueco
+        #Si existe al menos una mesa libre → hay hueco
         if len(mesas_ocupadas) < mesas.count():
             return True
 
         actual += intervalo
 
-    # 🔴 Ningún bloque tuvo mesas libres
+    # Ningún bloque tuvo mesas libres
     return False
