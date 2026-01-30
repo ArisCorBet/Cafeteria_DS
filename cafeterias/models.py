@@ -1,6 +1,6 @@
 from django.db import models
 from infraestructura.models import Bloque
-# Create your models here.
+
 class EstadoMesa(models.TextChoices):
     LIBRE = 'LIBRE', 'Libre'
     OCUPADO = 'OCUPADO', 'Ocupado'

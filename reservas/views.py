@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import datetime, timedelta, date
@@ -34,9 +35,11 @@ def calendario_general(request, cafeteria_id):
 
     mesas = Mesa.objects.filter(cafeteria=cafeteria)
 
+
+    # Permitir cambiar mes y año por GET
     hoy = date.today()
-    anio = hoy.year
-    mes = hoy.month
+    mes = int(request.GET.get('mes', hoy.month))
+    anio = int(request.GET.get('anio', hoy.year))
 
     _, dias_mes = monthrange(anio, mes)
     fechas_mes = [date(anio, mes, dia) for dia in range(1, dias_mes + 1)]
@@ -55,40 +58,54 @@ def calendario_general(request, cafeteria_id):
         reservas_por_fecha.setdefault(r.fecha, []).append(r)
 
     eventos_calendar = []
+    # Sobrescribir archivo al inicio
+    with open('debug_calendario.txt', 'w', encoding='utf-8') as dbg:
+        dbg.write('# Debug calendario general\n')
     for fecha in fechas_mes:
         reservas_dia = reservas_por_fecha.get(fecha, [])
-        if reservas_dia:
-            # Procesar en memoria para saber si hay huecos
-            # Crear un set de mesas ocupadas en ese día
-            mesas_ocupadas = set(r.mesa_id for r in reservas_dia)
-            if len(mesas_ocupadas) < mesas.count():
-                # Hay al menos una mesa libre en algún bloque
-                eventos_calendar.append({
-                    "start": fecha.isoformat(),
-                    "allDay": True,
-                    "color": "#3b82f6"  
-                })
-            else:
-                # Todas las mesas ocupadas en algún momento, pero puede haber huecos
-                # Usar la función original para precisión
-                tiene_huecos = dia_tiene_huecos(
-                    fecha=fecha,
-                    mesas=mesas,
-                    hora_apertura=cafeteria.hora_apertura,
-                    hora_cierre=cafeteria.hora_cierre
-                )
-                if tiene_huecos:
+        with open('debug_calendario.txt', 'a', encoding='utf-8') as dbg:
+            dbg.write(f"\n--- Día: {fecha} ---\n")
+            if reservas_dia:
+                intervalo = timedelta(minutes=30)
+                inicio_dia = datetime.combine(fecha, cafeteria.hora_apertura)
+                if cafeteria.hora_cierre <= cafeteria.hora_apertura:
+                    fin_dia = datetime.combine(fecha + timedelta(days=1), cafeteria.hora_cierre)
+                else:
+                    fin_dia = datetime.combine(fecha, cafeteria.hora_cierre)
+
+                actual = inicio_dia
+                disponibilidad_parcial = False
+                while actual + intervalo <= fin_dia:
+                    bloque_inicio = actual.time()
+                    bloque_fin = (actual + intervalo).time()
+                    mesas_ocupadas = MesaReserva.objects.filter(
+                        mesa__in=mesas,
+                        fecha=fecha,
+                        estado=EstadoMesa.OCUPADO,
+                        hora_inicio__lt=bloque_fin,
+                        hora_fin__gt=bloque_inicio
+                    ).values_list("mesa_id", flat=True)
+                    dbg.write(f"Bloque {bloque_inicio}-{bloque_fin}: mesas ocupadas: {list(mesas_ocupadas)} (total: {len(mesas_ocupadas)})\n")
+                    if len(mesas_ocupadas) < mesas.count():
+                        dbg.write("→ Hay al menos una mesa libre en este bloque (disponibilidad parcial)\n")
+                        disponibilidad_parcial = True
+                        break
+                    actual += intervalo
+                dbg.write(f"¿Disponibilidad parcial detectada? {disponibilidad_parcial}\n")
+                if disponibilidad_parcial:
                     eventos_calendar.append({
                         "start": fecha.isoformat(),
                         "allDay": True,
-                        "color": "#3b82f6"  # 🔵 Azul
+                        "color": "#3b82f6"  # Azul: hay al menos un bloque con mesa libre
                     })
                 else:
                     eventos_calendar.append({
                         "start": fecha.isoformat(),
                         "allDay": True,
-                        "color": "#e66e6e"  
+                        "color": "#e66e6e"  # Rojo: no hay bloques libres
                     })
+            else:
+                dbg.write("Sin reservas para este día.\n")
 
     context = {
         "cafeteria": cafeteria,
