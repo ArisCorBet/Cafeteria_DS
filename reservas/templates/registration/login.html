@@ -5,7 +5,6 @@
 
   <div class="login-card">
 
-    <!-- Identidad -->
     <div class="login-header">
       <span class="login-icon">🔐</span>
       <h2>LatteGo</h2>
@@ -14,25 +13,33 @@
       </p>
     </div>
 
-    <!-- Mensaje informativo -->
     <div class="info">
       Inicia sesión para gestionar tus reservas de cafetería.
     </div>
 
-    <!-- Errores -->
-    {% if form.errors %}
-      <div class="error-box">
-        Usuario o contraseña incorrectos. Intente nuevamente.
+  {% if form.errors or form.non_field_errors %}
+      <div class="error-box" style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.85em;">
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        {% else %}
+            Usuario, correo o contraseña incorrectos.
+        {% endif %}
       </div>
     {% endif %}
 
-    <!-- Formulario -->
     <form method="post" class="login-form">
       {% csrf_token %}
 
       <p>
         <label for="id_username">Usuario</label>
         {{ form.username }}
+      </p>
+
+      <p>
+        <label for="id_email">Correo Institucional</label>
+        {{ form.email }}
       </p>
 
       <p>
@@ -45,7 +52,14 @@
       </button>
     </form>
 
-    <!-- Footer institucional -->
+    <div style="text-align: center; margin-top: 20px; font-size: 0.9em;">
+      <p>¿No tienes cuenta? <br> 
+        <a href="{% url 'registro' %}" style="color: #6F4E37; font-weight: bold; text-decoration: none;">
+          Regístrate aquí con tu correo 
+        </a>
+      </p>
+    </div>
+
     <div class="login-footer">
       © 2026 · LatteGo
     </div>

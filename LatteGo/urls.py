@@ -16,12 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from reservas.views import home_cliente, redireccion_post_login
+from reservas.views import home_cliente, redireccion_post_login, registro, mis_reservas
+from django.views.generic.base import RedirectView
+from reservas.views import cancelar_reserva 
+from reservas.forms import TripleLoginForm
+from django.contrib.auth import views as auth_views
+from reservas.views import configuracion_perfil
 
 urlpatterns = [
-    path('', home_cliente, name='home_cliente'),
+    path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),
+    path('home/', home_cliente, name='home_cliente'),
+    path('mis-reservas/', mis_reservas, name='mis_reservas'),
+    path('configuracion/', configuracion_perfil, name='configuracion'),
+    path('accounts/login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html',
+        authentication_form=TripleLoginForm
+    ), name='login'),
+    path('accounts/registro/', registro, name='registro'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('post-login/', redireccion_post_login, name='post_login'),
     path('admin/', admin.site.urls),
     path('reservas/', include('reservas.urls')),
+    path('cancelar-reserva/<int:reserva_id>/', cancelar_reserva, name='cancelar_reserva'),
+
 ]
+
+
