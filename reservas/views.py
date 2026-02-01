@@ -9,7 +9,7 @@ from .models import Reserva, MesaReserva, EstadoMesa
 from django.shortcuts import redirect
 from calendar import monthrange
 from pytz import timezone as pytz_timezone
-from .forms import RegistroForm
+
 
 @login_required
 def realizar_reserva(request):
@@ -44,6 +44,7 @@ def calendario_general(request, cafeteria_id):
     _, dias_mes = monthrange(anio, mes)
     fechas_mes = [date(anio, mes, dia) for dia in range(1, dias_mes + 1)]
 
+
     # Obtener todas las reservas ocupadas del mes en una sola consulta
     reservas_mes = MesaReserva.objects.filter(
         mesa__in=mesas,
@@ -52,47 +53,53 @@ def calendario_general(request, cafeteria_id):
         estado=EstadoMesa.OCUPADO
     ).select_related('mesa')
 
-    # Agrupar reservas por fecha
-    reservas_por_fecha = {}
+    # Agrupar reservas por fecha y mesa
+    reservas_por_fecha_mesa = {}
     for r in reservas_mes:
-        reservas_por_fecha.setdefault(r.fecha, []).append(r)
+        reservas_por_fecha_mesa.setdefault((r.fecha, r.mesa_id), []).append(r)
 
     eventos_calendar = []
-    # Sobrescribir archivo al inicio
     with open('debug_calendario.txt', 'w', encoding='utf-8') as dbg:
         dbg.write('# Debug calendario general\n')
     for fecha in fechas_mes:
-        reservas_dia = reservas_por_fecha.get(fecha, [])
         with open('debug_calendario.txt', 'a', encoding='utf-8') as dbg:
             dbg.write(f"\n--- Día: {fecha} ---\n")
-            if reservas_dia:
-                intervalo = timedelta(minutes=30)
-                inicio_dia = datetime.combine(fecha, cafeteria.hora_apertura)
-                if cafeteria.hora_cierre <= cafeteria.hora_apertura:
-                    fin_dia = datetime.combine(fecha + timedelta(days=1), cafeteria.hora_cierre)
-                else:
-                    fin_dia = datetime.combine(fecha, cafeteria.hora_cierre)
+            # Simular bloques de 30 minutos
+            intervalo = timedelta(minutes=30)
+            inicio_dia = datetime.combine(fecha, cafeteria.hora_apertura)
+            cruza_medianoche = cafeteria.hora_cierre <= cafeteria.hora_apertura
+            if cruza_medianoche:
+                fin_dia = datetime.combine(fecha + timedelta(days=1), cafeteria.hora_cierre)
+            else:
+                fin_dia = datetime.combine(fecha, cafeteria.hora_cierre)
 
-                actual = inicio_dia
-                disponibilidad_parcial = False
-                while actual + intervalo <= fin_dia:
-                    bloque_inicio = actual.time()
-                    bloque_fin = (actual + intervalo).time()
-                    mesas_ocupadas = MesaReserva.objects.filter(
-                        mesa__in=mesas,
-                        fecha=fecha,
-                        estado=EstadoMesa.OCUPADO,
-                        hora_inicio__lt=bloque_fin,
-                        hora_fin__gt=bloque_inicio
-                    ).values_list("mesa_id", flat=True)
-                    dbg.write(f"Bloque {bloque_inicio}-{bloque_fin}: mesas ocupadas: {list(mesas_ocupadas)} (total: {len(mesas_ocupadas)})\n")
-                    if len(mesas_ocupadas) < mesas.count():
-                        dbg.write("→ Hay al menos una mesa libre en este bloque (disponibilidad parcial)\n")
-                        disponibilidad_parcial = True
-                        break
-                    actual += intervalo
-                dbg.write(f"¿Disponibilidad parcial detectada? {disponibilidad_parcial}\n")
-                if disponibilidad_parcial:
+            actual = inicio_dia
+            hay_hueco = False
+            while actual + intervalo <= fin_dia:
+                bloque_inicio = actual.time()
+                bloque_fin = (actual + intervalo).time()
+                # Determinar a qué fecha corresponde el bloque
+                if not cruza_medianoche or actual.date() == fecha:
+                    fecha_bloque = fecha
+                else:
+                    fecha_bloque = fecha + timedelta(days=1)
+
+                mesas_ocupadas = set()
+                for mesa in mesas:
+                    reservas_mesa = reservas_por_fecha_mesa.get((fecha_bloque, mesa.id), [])
+                    for res in reservas_mesa:
+                        if res.hora_inicio < bloque_fin and res.hora_fin > bloque_inicio:
+                            mesas_ocupadas.add(mesa.id)
+                            break
+                dbg.write(f"Bloque {bloque_inicio}-{bloque_fin}: mesas ocupadas: {list(mesas_ocupadas)} (total: {len(mesas_ocupadas)})\n")
+                if len(mesas_ocupadas) < mesas.count():
+                    dbg.write("→ Hay al menos una mesa libre en este bloque (disponibilidad parcial)\n")
+                    hay_hueco = True
+                    break
+                actual += intervalo
+            dbg.write(f"¿Disponibilidad parcial detectada? {hay_hueco}\n")
+            if reservas_mes.filter(fecha=fecha).exists():
+                if hay_hueco:
                     eventos_calendar.append({
                         "start": fecha.isoformat(),
                         "allDay": True,
@@ -222,13 +229,25 @@ def confirmar_reserva(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)
 
     if request.method == "POST":
-        fecha_str = request.GET.get("fecha")
-        hora_inicio_str = request.GET.get("hora_inicio")
-        hora_fin_str = request.GET.get("hora_fin")
+        fecha_str = request.POST.get("fecha")
+        hora_inicio_str = request.POST.get("hora_inicio")
+        hora_fin_str = request.POST.get("hora_fin")
 
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
         hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
+
+        # Verificar disponibilidad antes de crear la reserva
+        solapada = MesaReserva.objects.filter(
+            mesa=mesa,
+            fecha=fecha,
+            estado=EstadoMesa.OCUPADO,
+            hora_inicio__lt=hora_fin,
+            hora_fin__gt=hora_inicio
+        ).exists()
+        if solapada:
+            messages.error(request, "La mesa ya ha sido reservada para ese horario. Por favor, selecciona otro horario o mesa.")
+            return redirect(request.path + f"?fecha={fecha_str}&hora_inicio={hora_inicio_str}&hora_fin={hora_fin_str}")
 
         plazo_limite = fecha - timedelta(days=1)
 
@@ -322,30 +341,34 @@ def redireccion_post_login(request):
 
 def dia_tiene_huecos(fecha, mesas, hora_apertura, hora_cierre):
     intervalo = timedelta(minutes=30)
-
     inicio_dia = datetime.combine(fecha, hora_apertura)
-
     # Caso: horario cruza medianoche
-    if hora_cierre <= hora_apertura:
+    cruza_medianoche = hora_cierre <= hora_apertura
+    if cruza_medianoche:
         fin_dia = datetime.combine(fecha + timedelta(days=1), hora_cierre)
     else:
         fin_dia = datetime.combine(fecha, hora_cierre)
 
     actual = inicio_dia
-
     while actual + intervalo <= fin_dia:
         bloque_inicio = actual.time()
         bloque_fin = (actual + intervalo).time()
 
+        # Determinar a qué fecha corresponde el bloque
+        if not cruza_medianoche or actual.date() == fecha:
+            fecha_bloque = fecha
+        else:
+            fecha_bloque = fecha + timedelta(days=1)
+
         mesas_ocupadas = MesaReserva.objects.filter(
             mesa__in=mesas,
-            fecha=fecha,
+            fecha=fecha_bloque,
             estado=EstadoMesa.OCUPADO,
             hora_inicio__lt=bloque_fin,
             hora_fin__gt=bloque_inicio
         ).values_list("mesa_id", flat=True)
 
-        #Si existe al menos una mesa libre → hay hueco
+        # Si existe al menos una mesa libre → hay hueco
         if len(mesas_ocupadas) < mesas.count():
             return True
 
@@ -354,17 +377,7 @@ def dia_tiene_huecos(fecha, mesas, hora_apertura, hora_cierre):
     # Ningún bloque tuvo mesas libres
     return False
 
-def registro(request):
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            # "messages" ya está importado en tu archivo, así que funcionará bien
-            messages.success(request, "Cuenta creada exitosamente. ¡Ahora puedes iniciar sesión!")
-            return redirect('login')
-    else:
-        form = RegistroForm()
-    return render(request, 'registration/registro.html', {'form': form})
+
 
 @login_required
 def mis_reservas(request):
@@ -376,13 +389,10 @@ def mis_reservas(request):
 def cancelar_reserva(request, reserva_id):
     # Buscamos la reserva y verificamos que sea del usuario actual por seguridad
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    # Eliminar todas las MesaReserva asociadas
+    MesaReserva.objects.filter(reserva=reserva).delete()
+    # Eliminar la reserva
     reserva.delete()
-    messages.success(request, "¡Tu reserva ha sido cancelada exitosamente!")
+    messages.success(request, "¡Tu reserva ha sido cancelada y eliminada exitosamente!")
     return redirect('mis_reservas')
 
-@login_required
-def configuracion_perfil(request):
-    # Por ahora solo mostramos los datos del usuario logueado
-    return render(request, "reservas/perfil.html", {
-        "user": request.user
-    })

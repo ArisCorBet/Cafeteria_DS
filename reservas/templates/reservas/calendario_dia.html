@@ -15,7 +15,8 @@
 
 {% block content %}
 <div class="page-header">
-  <a href="{% url 'reservas:calendario_general' cafeteria.id %}" class="back-button">← Volver</a>
+  <a href="{% url 'reservas:calendario_general' cafeteria.id %}" class="back-button" style="margin-right:10px;">← Volver</a>
+  <a href="{% url 'home_cliente' %}" class="back-button" style="margin-right:10px;">Ir a inicio</a>
   <h2>📅 {{ cafeteria.nombre }}</h2>
 </div>
 

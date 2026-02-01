@@ -16,12 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from reservas.views import home_cliente, redireccion_post_login, registro, mis_reservas
+from reservas.views import home_cliente, redireccion_post_login, mis_reservas
+from usuarios.views import registro
 from django.views.generic.base import RedirectView
 from reservas.views import cancelar_reserva 
-from reservas.forms import TripleLoginForm
+from usuarios.forms import TripleLoginForm
 from django.contrib.auth import views as auth_views
-from reservas.views import configuracion_perfil
+from usuarios.views import configuracion_perfil
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),

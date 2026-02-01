@@ -1,6 +1,222 @@
-html {
-    overflow-y: scroll;
+/* =========================
+    UTILIDADES Y CLASES DE USO GENERAL
+========================= */
+.d-none { display: none !important; }
+.m-top-18 { margin-top: 18px !important; }
+.text-center { text-align: center !important; }
+.inline { display: inline !important; }
+.no-bg { background: none !important; }
+.no-border { border: none !important; }
+.color-inherit { color: inherit !important; }
+.font-inherit { font: inherit !important; }
+.cursor-pointer { cursor: pointer !important; }
+.color-parcial { color: #3b82f6 !important; }
+.color-sindisp { color: #ef4444 !important; }
+/* =========================
+   VARIABLES Y RESET
+========================= */
+:root {
+    --color-primario: #1f2933;
+    --color-secundario: #374151;
+    --color-acento: #2563eb;
+    --color-fondo: #f2f4f7;
+    --color-borde: #e5e7eb;
+    --color-texto: #111827;
 }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+html { overflow-y: scroll; }
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+}
+
+/* =========================
+   TIPOGRAFÍA Y TÍTULOS
+========================= */
+h1, h2, h3 {
+    margin-bottom: 14px;
+    font-weight: 600;
+    color: var(--color-texto);
+}
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.15rem; }
+
+/* =========================
+   LAYOUT Y CONTENEDORES
+========================= */
+.container {
+    max-width: 1350px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--color-borde);
+}
+.container-wide {
+    max-width: 3200px;
+    margin: 20px auto;
+}
+.home-container {
+    max-width: 1100px;
+    margin: 10px 30;
+    padding: 20px 40px;
+    font-family: var(--font-family, 'Segoe UI', system-ui, -apple-system, sans-serif);
+}
+.date-alert-box {
+    border: 1.5px solid var(--color-acento);
+    background-color: #f0f7ff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    color: #1e3a8a;
+    margin: 20px 0 30px 0;
+    font-size: 16px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================
+   BOTONES Y LINKS
+========================= */
+a { text-decoration: none; }
+.btn, .btn-dark, .btn-aceptar, .btn-cancelar, .btn-login, .btn-cancelar-reserva {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+    transition: background 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn, .btn-dark {
+    background-color: var(--color-primario);
+    color: #fff !important;
+}
+.btn:hover, .btn-dark:hover {
+    background-color: var(--color-secundario);
+}
+.btn-aceptar {
+    background: #2563eb;
+    color: #fff;
+    margin-right: 12px;
+}
+.btn-cancelar {
+    background: #c02849;
+    color: #374151;
+}
+.btn-login {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    font-weight: 600;
+}
+.btn-cancelar-reserva {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+/* =========================
+   HOME (VISTA PRINCIPAL)
+========================= */
+.home-title {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+}
+.home-subtitle {
+    color: #64748b;
+    font-size: 16px;
+}
+.home-info {
+    margin-top: 15px;
+    color: #475569;
+}
+.home-info p {
+    margin: 5px 0;
+}
+/* =========================
+   MIS RESERVAS (VISTA)
+========================= */
+.mis-reservas-outer {
+    max-width: 900px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.mis-reservas-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.mis-reservas-title {
+    color: #4a332d;
+    border-bottom: 2px solid #f5ebe0;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.mis-reservas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+.mis-reservas-table thead tr {
+    border-bottom: 2px solid #eee;
+}
+.mis-reservas-table th {
+    text-align: left;
+    padding: 15px;
+    color: #333;
+}
+.mis-reservas-table th:last-child {
+    text-align: center;
+}
+.mis-reservas-table td {
+    padding: 15px;
+    color: #333;
+}
+.mis-reservas-codigo {
+    font-weight: bold;
+}
+.mis-reservas-table tbody tr {
+    border-bottom: 1px solid #f9f9f9;
+}
+.mis-reservas-accion {
+    text-align: center;
+}
+
+.btn-cancelar-reserva:hover {
+    background-color: #b91c1c;
+}
+.mis-reservas-vacio {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+.mis-reservas-volver {
+    text-align: center;
+    margin-top: 20px;
+}
+.mis-reservas-link-volver {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+.mis-reservas-link-volver:hover {
+    text-decoration: underline;
+}
+
 /* Modal para confirmar reserva en seleccionar mesa */
 .modal-reserva {
     display: none;
@@ -20,12 +236,6 @@ html {
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    position: fixed;
-    z-index: 1000;
     box-sizing: border-box;
 }
 .modal-reserva[style*="display: flex"] {
@@ -45,55 +255,8 @@ html {
     transform: translate(-50%, -50%);
     z-index: 1100;
 }
-.btn-aceptar {
-    background: #2563eb;
-    color: #fff;
-    margin-right: 12px;
-}
-.btn-cancelar {
-    background: #e5e7eb;
-    color: #374151;
-}
-/* Modal para confirmar reserva */
-.modal-reserva {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-        /* Evita que el body con padding afecte el modal */
-        box-sizing: border-box;
-    /* Asegura que el body no tenga padding cuando el modal está abierto */
-    body[style*="overflow: hidden"] {
-        padding-right: 0 !important;
-    }
-    top: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0,0,0,0.35);
-    justify-content: center;
-    align-items: center;
-}
-.modal-reserva[style*="display: flex"] {
-    display: flex !important;
-}
-.modal-contenido {
-    background: #fff;
-    padding: 32px 28px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    min-width: 320px;
-    max-width: 95vw;
-    text-align: center;
-}
-.btn-aceptar {
-    background: #2563eb;
-    color: #fff;
-    margin-right: 12px;
-}
-.btn-cancelar {
-    background: #e5e7eb;
-    color: #374151;
-}
+
+
 /* Limita el ancho de los eventos y los alinea a la izquierda en el calendario de reservas */
 .fc-timegrid-event {
     max-width: 48% !important;
@@ -109,92 +272,10 @@ html {
     gap: 2px !important;
 }
 
-/* =========================
-   VARIABLES DE DISEÑO
-========================= */
-:root {
-    --color-primario: #1f2933;
-    --color-secundario: #374151;
-    --color-acento: #2563eb;
-    --color-fondo: #f2f4f7;
-    --color-borde: #e5e7eb;
-    --color-texto: #111827;
-}
-
-/* =========================
-   RESET BÁSICO
-========================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-}
-
-/* =========================
-   ESTILO GENERAL
-========================= */
-body {
-    background-color: var(--color-fondo);
-    color: var(--color-texto);
-}
-
-/* =========================
-   CONTENEDORES
-========================= */
-.container {
-    max-width: 1000px;
-    margin: 20px auto;
-    background: #ffffff;
-    padding: 32px;
-    border-radius: 6px;
-    border: 1px solid var(--color-borde);
-}
-
-/* Contenedor ancho (vistas principales) */
-.container-wide {
-    max-width: 3200px;
-
-    margin: 20px auto;
-}
-
-/* =========================
-   TÍTULOS
-========================= */
-h1, h2, h3 {
-    margin-bottom: 14px;
-    font-weight: 600;
-    color: var(--color-texto);
-}
-
-h2 {
-    font-size: 1.4rem;
-}
-
-h3 {
-    font-size: 1.15rem;
-}
 
 /* =========================
    LINKS Y BOTONES
 ========================= */
-a {
-    text-decoration: none;
-}
-
-.btn {
-    display: inline-block;
-    padding: 10px 14px;
-    background-color: var(--color-primario);
-    color: #ffffff;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.btn:hover {
-    background-color: var(--color-secundario);
-}
 
 /* Botones nativos */
 button {
@@ -230,41 +311,24 @@ button:hover {
     font-weight: 600;
 }
 
-/* =========================
-   GRID DE CAFETERÍAS
-========================= */
-.cafeterias-list {
+/* GRIDS */
+.cafeterias-list, .mesas-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 28px;
-}
-
-/* =========================
-   GRID DE MESAS
-========================= */
-.mesas-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
     margin-top: 20px;
 }
+.mesas-grid { gap: 32px; }
 
-/* =========================
-   TARJETAS (CAFETERÍA / MESA / OPCIÓN)
-========================= */
-.cafeteria-card,
-.mesa-card,
-.opcion-card {
-    background: #ffffff;
+/* TARJETAS */
+.cafeteria-card, .mesa-card {
+    background: #fff;
     border: 1px solid var(--color-borde);
     padding: 22px;
     border-radius: 10px;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
-
-.cafeteria-card:hover,
-.mesa-card:hover,
-.opcion-card.activa:hover {
+.cafeteria-card:hover, .mesa-card:hover {
     border-color: var(--color-acento);
     background-color: #d5e4f6;
 }
@@ -513,7 +577,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #b8ced7;
     padding: 14px 30px;
     border-bottom: 1px solid var(--color-borde);
 }
@@ -551,7 +615,7 @@ button:hover {
 }
 
 .header-link.salir {
-    color: #b91c1c;
+    color: #ba2424;
     font-weight: 600;
 }
 
@@ -568,6 +632,55 @@ button:hover {
     border-style: dashed;
     opacity: 0.6;
 }
+
+.opciones-list {
+    display: grid;
+    grid-template-columns: repeat(0, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.card-item {
+    background: #ffffff;
+    border: 1px solid var(--color-borde);
+    border-radius: 14px;
+    padding: 26px 54px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+.card-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-acento);
+    box-shadow: 0 10px 28px rgba(37,99,235,0.15);
+}
+.card-item-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--color-primario);
+}
+.card-item-desc {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+.card-item:first-child {
+    border: 2px solid var(--color-acento);
+    background: linear-gradient(180deg, #f0f7ff, #ffffff);
+}
+.opciones-list .btn-dark {
+    margin-top: auto;
+    text-align: center;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
 
 /* =========================
    LOGIN (FORMAL)
@@ -633,13 +746,6 @@ button:hover {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
-.btn-login {
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px;
-    font-weight: 600;
-}
-
 /* Errores */
 .error-box {
     background: #fdecea;
@@ -662,30 +768,32 @@ button:hover {
 }
 
 @media (max-width: 1024px) {
-    .cafeterias-list {
+    .cafeterias-list, .mesas-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    .mesas-grid {
+    .mesas-grid { gap: 24px; }
+}
+@media (max-width: 600px) {
+    .cafeterias-list, .mesas-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .mesa-card { padding: 20px; }
+    .page-header h2 { font-size: 1.5rem; }
+}
+
+@media (max-width: 900px) {
+    .opciones-list {
         grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
     }
 }
 
 @media (max-width: 600px) {
-    .cafeterias-list {
+    .opciones-list {
         grid-template-columns: 1fr;
-    }
-    .mesas-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    .mesa-card {
-        padding: 20px;
-    }
-    .page-header h2 {
-        font-size: 1.5rem;
     }
 }
+
 
 /* =========================
    INDICADOR DE PASOS

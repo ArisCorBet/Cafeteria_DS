@@ -1,47 +1,39 @@
 {% extends "reservas/base.html" %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 40px auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    
-    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-        <h2 style="color: #4a332d; border-bottom: 2px solid #f5ebe0; padding-bottom: 15px; margin-bottom: 25px;">
-            📋 Mis Reservas
-        </h2>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+<div class="mis-reservas-outer">
+    <div class="mis-reservas-card">
+        <h2 class="mis-reservas-title">📋 Mis Reservas</h2>
+        <table class="mis-reservas-table">
             <thead>
-                <tr style="border-bottom: 2px solid #eee;">
-                    <th style="text-align: left; padding: 15px; color: #333;">Código</th>
-                    <th style="text-align: left; padding: 15px; color: #333;">Fecha</th>
-                    <th style="text-align: left; padding: 15px; color: #333;">Horario</th>
-                    <th style="text-align: center; padding: 15px; color: #333;">Acción</th>
+                <tr>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
                 {% for reserva in reservas %}
-                <tr style="border-bottom: 1px solid #f9f9f9;">
-                    <td style="padding: 15px; font-weight: bold;">{{ reserva.codigo }}</td>
-                    <td style="padding: 15px;">{{ reserva.fecha_reserva|date:"d \d\e F \d\e Y" }}</td>
-                    <td style="padding: 15px;">{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</td>
-                    <td style="padding: 15px; text-align: center;">
-                        <a href="{% url 'cancelar_reserva' reserva.id %}" 
-                           style="background-color: #dc3545; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.9em;">
+                <tr>
+                    <td class="mis-reservas-codigo">{{ reserva.codigo }}</td>
+                    <td>{{ reserva.fecha_reserva|date:"d \d\e F \d\e Y" }}</td>
+                    <td>{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</td>
+                    <td class="mis-reservas-accion">
+                        <a href="{% url 'cancelar_reserva' reserva.id %}" class="btn-cancelar-reserva">
                             Cancelar
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 30px; color: #999;">No tienes reservas activas.</td>
+                    <td colspan="4" class="mis-reservas-vacio">No tienes reservas activas.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'home_cliente' %}" style="color: #6c757d; text-decoration: none; font-size: 0.9em;">
-                ← Volver al inicio
-            </a>
+        <div class="mis-reservas-volver">
+            <a href="{% url 'home_cliente' %}" class="btn" style="margin-left: 10px;">🏠 Ir a inicio</a>
         </div>
     </div>
 </div>

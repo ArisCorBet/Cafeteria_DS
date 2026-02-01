@@ -1,104 +1,31 @@
 {% extends "reservas/base.html" %}
 
 {% block content %}
-<style>
-    .home-container {
-        max-width: 1100px;
-        margin: 20px auto;
-        padding: 20px;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-    
-    .main-card {
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    }
-
-    /* RECUADRO DE FECHA EXACTO A LA IMAGEN */
-    .date-alert-box {
-        border: 1.5px solid #3b82f6; /* El azul de tu captura */
-        background-color: #f0f7ff; /* Fondo celeste muy claro */
-        padding: 20px 25px;
-        border-radius: 10px;
-        color: #1e3a8a; 
-        margin: 20px 0 30px 0;
-        font-size: 16px;
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .opciones-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .card-item {
-        background: #f8fafc;
-        padding: 25px;
-        border-radius: 12px;
-        border-left: 5px solid #e2e8f0;
-        transition: all 0.3s ease;
-    }
-
-    .card-item.active {
-        border-left-color: #3b82f6; /* Azul para resaltar */
-    }
-
-    /* BOTONES OSCUROS UNIFICADOS */
-    .btn-dark {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 10px 24px;
-        background-color: #1f2937; /* Gris muy oscuro/negro de la imagen */
-        color: white !important;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 14px;
-        border: none;
-    }
-
-    .btn-dark:hover {
-        background-color: #111827;
-    }
-</style>
-
 <div class="home-container">
-    <div class="main-card">
-        <h1 style="font-size: 28px; margin: 0 0 10px 0;">Bienvenido, {{ request.user.username|default:"Cris" }}</h1>
-        <p style="color: #64748b; font-size: 16px;">Desde aquí puedes gestionar tus reservas en las cafeterías disponibles.</p>
-        
-        <div style="margin-top: 15px; color: #475569;">
-            <p style="margin: 5px 0;">☕ Cafeterías disponibles para reserva</p>
-            <p style="margin: 5px 0;">📅 Reservas activas hoy: <i>consulta el calendario</i></p>
+    <h1 class="home-title">Bienvenido, {{ request.user.username|default:"Cris" }}</h1>
+    <p class="home-subtitle">Desde aquí puedes gestionar tus reservas en las cafeterías disponibles.</p>
+    <div class="home-info">
+        <p>☕ Cafeterías disponibles para reserva</p>
+        <p>📅 Reservas activas hoy: <i>consulta el calendario</i></p>
+    </div>
+    <div class="date-alert-box">
+        Hoy es 29 enero 2026. Desde aquí puedes realizar nuevas reservas en las cafeterías disponibles.
+    </div>
+    <div class="opciones-list">
+        <div class="card-item active">
+            <h3 class="card-item-title">☕ Realizar reserva</h3>
+            <p class="card-item-desc">Consulta las cafeterías disponibles, revisa horarios y reserva una mesa.</p>
+            <a href="{% url 'reservas:realizar_reserva' %}" class="btn-dark">Realizar reserva</a>
         </div>
-
-        <div class="date-alert-box">
-            Hoy es 29 enero 2026. Desde aquí puedes realizar nuevas reservas en las cafeterías disponibles.
+        <div class="card-item active">
+            <h3 class="card-item-title">📋 Mis reservas</h3>
+            <p class="card-item-desc">Visualiza y gestiona tus reservas activas.</p>
+            <a href="{% url 'mis_reservas' %}" class="btn-dark">Ver mis reservas</a>
         </div>
-
-        <div class="opciones-list">
-            <div class="card-item active">
-                <h3 style="margin: 0 0 8px 0;">☕ Realizar reserva</h3>
-                <p style="color: #64748b; margin: 0;">Consulta las cafeterías disponibles, revisa horarios y reserva una mesa.</p>
-                <a href="{% url 'reservas:realizar_reserva' %}" class="btn-dark">Ir a reservas</a>
-            </div>
-
-            <div class="card-item active">
-                <h3 style="margin: 0 0 8px 0;">📋 Mis reservas</h3>
-                <p style="color: #64748b; margin: 0;">Visualiza y gestiona tus reservas activas.</p>
-                <a href="{% url 'mis_reservas' %}" class="btn-dark">Ver mis reservas</a>
-            </div>
-
-            <div class="card-item active">
-                <h3 style="margin: 0 0 8px 0;">⚙️ Configuración</h3>
-                <p style="color: #64748b; margin: 0;">Administra tu información de cuenta.</p>
-                <a href="{% url 'configuracion' %}" class="btn-dark">Mi Perfil</a>
-            </div>
+        <div class="card-item active">
+            <h3 class="card-item-title">⚙️ Configuración</h3>
+            <p class="card-item-desc">Administra tu información de cuenta.</p>
+            <a href="{% url 'configuracion' %}" class="btn-dark">Mi Perfil</a>
         </div>
     </div>
 </div>

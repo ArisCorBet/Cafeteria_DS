@@ -25,23 +25,11 @@
 </script>
 {% extends "reservas/base.html" %}
 
-{% block step_indicator %}
-{% if current_step %}
-<div class="step-indicator">
-  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
-  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
-  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
-  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
-  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
-  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
-</div>
-{% endif %}
-{% endblock %}
-
 {% block content %}
 
 <div class="page-header">
-  <a href="{% url 'reservas:calendario_dia' cafeteria.id fecha %}" class="back-button">← Volver</a>
+  <a href="{% url 'reservas:calendario_dia' cafeteria.id fecha %}" class="back-button" style="margin-right:10px;">← Volver</a>
+  <a href="{% url 'home_cliente' %}" class="back-button" style="margin-right:10px;">Ir a inicio</a>
   <h2>🪑 Mesas disponibles</h2>
 </div>
 
@@ -50,7 +38,6 @@
   <strong>Fecha:</strong> {{ fecha }}<br>
   <strong>Horario:</strong> {{ hora_inicio }} – {{ hora_fin }}
 </p>
-
 
 <div class="mesas-grid">
   {% for mesa in mesas %}
@@ -76,14 +63,14 @@
 </div>
 
 <!-- Modal de confirmación (solo uno en el DOM) -->
-<div id="modal-confirmar" class="modal-reserva" style="display:none;">
+<div id="modal-confirmar" class="modal-reserva d-none">
   <div class="modal-contenido">
     <h2>Confirmar Reserva</h2>
     <p><strong>Mesa:</strong> <span id="modal-mesa-codigo"></span></p>
     <p><strong>Capacidad:</strong> <span id="modal-mesa-capacidad"></span> personas</p>
     <p><strong>Fecha:</strong> <span id="modal-fecha"></span></p>
     <p><strong>Horario:</strong> <span id="modal-hora-inicio"></span> - <span id="modal-hora-fin"></span></p>
-    <form id="form-confirmar" method="post" autocomplete="off" style="margin-top:18px;">
+    <form id="form-confirmar" method="post" autocomplete="off" class="m-top-18">
       {% csrf_token %}
       <input type="hidden" name="mesa_id" id="input-mesa-id">
       <input type="hidden" name="fecha" id="input-fecha">

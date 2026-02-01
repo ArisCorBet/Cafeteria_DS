@@ -1,18 +1,5 @@
 {% extends "reservas/base.html" %}
 
-{% block step_indicator %}
-{% if current_step %}
-<div class="step-indicator">
-  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
-  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
-  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
-  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
-  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
-  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
-</div>
-{% endif %}
-{% endblock %}
-
 {% block content %}
 
 <div class="confirmacion-container">
@@ -26,15 +13,12 @@
   </div>
 
   <div class="confirmacion-card">
-    <h3 style="text-align: center;">📄 Detalles de la reserva</h3>
+    <h3 class="text-center">📄 Detalles de la reserva</h3>
 
     <p>
       <strong>Código Reserva:</strong>
       <span class="codigo">{{ reserva.codigo }}</span>
     </p>
-
-    
-
 
     <p>
       <strong>Mesa seleccionada:</strong>
@@ -69,6 +53,7 @@
     <a href="{% url 'reservas:realizar_reserva' %}" class="btn">
       ➕ Realizar otra reserva
     </a>
+    <a href="{% url 'home_cliente' %}" class="btn" style="margin-left: 10px;">🏠 Ir a inicio</a>
   </div>
 
 </div>

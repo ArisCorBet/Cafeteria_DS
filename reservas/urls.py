@@ -41,5 +41,6 @@ urlpatterns = [
         name='eventos_mesa'
     ),
     path('mis-reservas/', views.mis_reservas, name='mis_reservas'),
-    path('configuracion/', views.configuracion_perfil, name='configuracion'),
+    path('cancelar/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
+
 ]

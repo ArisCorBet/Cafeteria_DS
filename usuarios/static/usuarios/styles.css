@@ -1,0 +1,61 @@
+/* Copia de styles.css para usuario. Puedes dejar solo lo necesario para el perfil si lo deseas. */
+/* =========================
+   HOME (VISTA PRINCIPAL)
+========================= */
+.home-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+.main-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.home-title {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+}
+.home-subtitle {
+    color: #64748b;
+    font-size: 16px;
+}
+.home-info {
+    margin-top: 15px;
+    color: #475569;
+}
+.home-info p {
+    margin: 5px 0;
+}
+.date-alert-box {
+    border: 1.5px solid #3b82f6;
+    background-color: #f0f7ff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    color: #1e3a8a;
+    margin: 20px 0 30px 0;
+    font-size: 16px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+.opciones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.card-item {
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+.card-item.active {
+    border-left-color: #3b82f6;
+}
+.card-item-title {
+    margin: 0 0 8px 0;
+}

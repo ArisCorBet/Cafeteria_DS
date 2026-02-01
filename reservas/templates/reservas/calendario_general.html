@@ -1,21 +1,11 @@
 {% extends "reservas/base.html" %}
 
-{% block step_indicator %}
-{% if current_step %}
-<div class="step-indicator">
-  <span class="step {% if current_step >= 1 %}active{% endif %}">1. Seleccionar Cafetería</span>
-  <span class="step {% if current_step >= 2 %}active{% endif %}">2. Seleccionar Día</span>
-  <span class="step {% if current_step >= 3 %}active{% endif %}">3. Seleccionar Horario</span>
-  <span class="step {% if current_step >= 4 %}active{% endif %}">4. Seleccionar Mesa</span>
-  <span class="step {% if current_step >= 5 %}active{% endif %}">5. Confirmar Reserva</span>
-  <span class="step {% if current_step >= 6 %}active{% endif %}">6. Reserva Finalizada</span>
-</div>
-{% endif %}
-{% endblock %}
+
 
 {% block content %}
 <div class="page-header">
-  <a href="{% url 'reservas:realizar_reserva' %}" class="back-button">← Volver</a>
+  <a href="{% url 'reservas:realizar_reserva' %}" class="back-button" style="margin-right:10px;">← Volver</a>
+  <a href="{% url 'home_cliente' %}" class="back-button" style="margin-right:10px;">Ir a inicio</a>
   <h2>📅 Calendario de reservas</h2>
 </div>
 
@@ -26,11 +16,11 @@
 
 <div class="calendar-legend">
   <span class="legend-item">
-    <span style="color: #3b82f6;">■</span> Disponibilidad Parcial
+    <span class="color-parcial">■</span> Disponibilidad Parcial
   </span>
 
   <span class="legend-item">
-    <span style="color: #ef4444;">■</span> Sin Disponibilidad
+    <span class="color-sindisp">■</span> Sin Disponibilidad
   </span>
 
   <span class="legend-item ayuda">
@@ -56,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const eventos = JSON.parse(
     document.getElementById('eventos-data').textContent
   );
+
+  // Depuración: mostrar eventos en consola
+  console.log('EVENTOS PARA FULLCALENDAR:', eventos);
 
   var calendarEl = document.getElementById('calendar');
 

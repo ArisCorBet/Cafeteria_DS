@@ -1,19 +1,23 @@
 {% extends 'reservas/base.html' %}
-
 {% block content %}
 
 
+<a href="{% url 'home_cliente' %}" class="back-button" style="margin-bottom: 16px; margin-right:10px; display: inline-block;">Ir a inicio</a>
+<a href="javascript:history.back()" class="back-button" style="margin-bottom: 16px; margin-right:10px; display: inline-block;">← Volver</a>
 <button type="button" id="abrir-modal" class="btn">Confirmar Reserva</button>
 
-<div id="modal-confirmar" class="modal-reserva" style="display:none;">
+<div id="modal-confirmar" class="modal-reserva d-none">
   <div class="modal-contenido">
     <h2>Confirmar Reserva</h2>
     <p><strong>Mesa:</strong> {{ mesa.codigo }}</p>
     <p><strong>Capacidad:</strong> {{ mesa.capacidad }} personas</p>
     <p><strong>Fecha:</strong> {{ fecha }}</p>
     <p><strong>Horario:</strong> {{ hora_inicio }} - {{ hora_fin }}</p>
-    <form id="form-confirmar" method="post" autocomplete="off" style="margin-top:18px;">
+    <form id="form-confirmar" method="post" autocomplete="off" class="m-top-18">
       {% csrf_token %}
+      <input type="hidden" name="fecha" value="{{ fecha }}">
+      <input type="hidden" name="hora_inicio" value="{{ hora_inicio }}">
+      <input type="hidden" name="hora_fin" value="{{ hora_fin }}">
       <button type="submit" class="btn btn-aceptar">Aceptar</button>
       <button type="button" class="btn btn-cancelar" id="cerrar-modal">Cancelar</button>
     </form>

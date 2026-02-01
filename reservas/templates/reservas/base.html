@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>LatteGo</title>
     <link rel="stylesheet" href="{% static 'reservas/styles.css' %}">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -17,34 +18,30 @@
     </div>
 
     <div class="header-right">
-        <span class="usuario">
-            {{ request.user.username }}
-        </span>
+        {% if request.user.is_authenticated %}
+            <span class="usuario">
+                {{ request.user.username }}
+            </span>
 
-        <!-- Acciones futuras (solo visual) -->
-        <a href="{% url 'mis_reservas' %}" class="header-link">Mis reservas</a>
-    
-        <form action="{% url 'logout' %}" method="post" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit" class="header-link salir" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer;">
-        Cerrar sesión
-    </button>
-</form>
+            <a href="{% url 'mis_reservas' %}" class="header-link">Mis reservas</a>
+        
+            <form action="{% url 'logout' %}" method="post" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="header-link salir no-bg no-border color-inherit font-inherit cursor-pointer">
+                    Cerrar sesión
+                </button>
+            </form>
+        {% endif %}
     </div>
 </header>
 
-<!-- =========================
-     INDICADOR DE PASOS
-     ========================= -->
-{% block step_indicator %}
-{% endblock %}
 
 <!-- =========================
-     CONTENIDO PRINCIPAL
-     ========================= -->
+    CONTENEDOR UNIFICADO
+    ========================= -->
 <main class="container">
-    {% block content %}
-    {% endblock %}
+    {% block step_indicator %}{% endblock %}
+    {% block content %}{% endblock %}
 </main>
 
 </body>
