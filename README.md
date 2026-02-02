@@ -4,3 +4,4 @@ Integrantes:
 - Jorge Luzuriaga
 - Ariana Córdoba
 - María Valarezo
+- Jimmy Ontaneda
